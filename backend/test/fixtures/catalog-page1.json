@@ -1,0 +1,188 @@
+{
+  "page": 1,
+  "pageSize": 20,
+  "pages": 50,
+  "total": 1000,
+  "items": [
+    {
+      "id": 242,
+      "slug": "helix-earbuds-max",
+      "name": "Helix Earbuds Max",
+      "brand": "Helix",
+      "category": "Audio",
+      "sku": "HEL-10242",
+      "description": "The Helix Earbuds Max. A dependable audio pick with a clean, no-nonsense design and the everyday features you actually use."
+    },
+    {
+      "id": 127,
+      "slug": "nordkraft-cable-kit-mini",
+      "name": "Nordkraft Cable Kit Mini",
+      "brand": "Nordkraft",
+      "category": "Power",
+      "sku": "NOR-10127",
+      "description": "The Nordkraft Cable Kit Mini. A dependable power pick with a clean, no-nonsense design and the everyday features you actually use."
+    },
+    {
+      "id": 359,
+      "slug": "vista-graphics-tablet-lite",
+      "name": "Vista Graphics Tablet Lite",
+      "brand": "Vista",
+      "category": "Peripherals",
+      "sku": "VIS-10359",
+      "description": "The Vista Graphics Tablet Lite. A dependable peripherals pick with a clean, no-nonsense design and the everyday features you actually use."
+    },
+    {
+      "id": 875,
+      "slug": "cobalt-recovery-slide-xl",
+      "name": "Cobalt Recovery Slide XL",
+      "brand": "Cobalt",
+      "category": "Footwear",
+      "sku": "COB-10875",
+      "description": "The Cobalt Recovery Slide XL. A dependable footwear pick with a clean, no-nonsense design and the everyday features you actually use."
+    },
+    {
+      "id": 711,
+      "slug": "domus-toaster-s",
+      "name": "Domus Toaster S",
+      "brand": "Domus",
+      "category": "Kitchen",
+      "sku": "DOM-10711",
+      "description": "The Domus Toaster S. A dependable kitchen pick with a clean, no-nonsense design and the everyday features you actually use."
+    },
+    {
+      "id": 999,
+      "slug": "ironwood-graphics-tablet-neo",
+      "name": "Ironwood Graphics Tablet Neo",
+      "brand": "Ironwood",
+      "category": "Peripherals",
+      "sku": "IRO-10999",
+      "description": "The Ironwood Graphics Tablet Neo. A dependable peripherals pick with a clean, no-nonsense design and the everyday features you actually use."
+    },
+    {
+      "id": 785,
+      "slug": "nordkraft-kettle-x",
+      "name": "Nordkraft Kettle X",
+      "brand": "Nordkraft",
+      "category": "Kitchen",
+      "sku": "NOR-10785",
+      "description": "The Nordkraft Kettle X. A dependable kitchen pick with a clean, no-nonsense design and the everyday features you actually use."
+    },
+    {
+      "id": 417,
+      "slug": "domus-smartwatch-plus",
+      "name": "Domus Smartwatch Plus",
+      "brand": "Domus",
+      "category": "Wearables",
+      "sku": "DOM-10417",
+      "description": "The Domus Smartwatch Plus. A dependable wearables pick with a clean, no-nonsense design and the everyday features you actually use."
+    },
+    {
+      "id": 16,
+      "slug": "vantablack-gamebook-pro",
+      "name": "Vantablack Gamebook Pro",
+      "brand": "Vantablack",
+      "category": "Laptops",
+      "sku": "VAN-10016",
+      "description": "The Vantablack Gamebook Pro. A dependable laptops pick with a clean, no-nonsense design and the everyday features you actually use."
+    },
+    {
+      "id": 648,
+      "slug": "helix-receiver-s",
+      "name": "Helix Receiver S",
+      "brand": "Helix",
+      "category": "Audio",
+      "sku": "HEL-10648",
+      "description": "The Helix Receiver S. A dependable audio pick with a clean, no-nonsense design and the everyday features you actually use."
+    },
+    {
+      "id": 862,
+      "slug": "auralite-duffel-xl",
+      "name": "Auralite Duffel XL",
+      "brand": "Auralite",
+      "category": "Bags",
+      "sku": "AUR-10862",
+      "description": "The Auralite Duffel XL. A dependable bags pick with a clean, no-nonsense design and the everyday features you actually use."
+    },
+    {
+      "id": 675,
+      "slug": "larkspur-trackpad-s",
+      "name": "Larkspur Trackpad S",
+      "brand": "Larkspur",
+      "category": "Peripherals",
+      "sku": "LAR-10675",
+      "description": "The Larkspur Trackpad S. A dependable peripherals pick with a clean, no-nonsense design and the everyday features you actually use."
+    },
+    {
+      "id": 133,
+      "slug": "cobalt-smart-plug-mini",
+      "name": "Cobalt Smart Plug Mini",
+      "brand": "Cobalt",
+      "category": "Smart Home",
+      "sku": "COB-10133",
+      "description": "The Cobalt Smart Plug Mini. A dependable smart home pick with a clean, no-nonsense design and the everyday features you actually use."
+    },
+    {
+      "id": 641,
+      "slug": "domus-headphones-s",
+      "name": "Domus Headphones S",
+      "brand": "Domus",
+      "category": "Audio",
+      "sku": "DOM-10641",
+      "description": "The Domus Headphones S. A dependable audio pick with a clean, no-nonsense design and the everyday features you actually use."
+    },
+    {
+      "id": 659,
+      "slug": "nordkraft-smart-ring-s",
+      "name": "Nordkraft Smart Ring S",
+      "brand": "Nordkraft",
+      "category": "Wearables",
+      "sku": "NOR-10659",
+      "description": "The Nordkraft Smart Ring S. A dependable wearables pick with a clean, no-nonsense design and the everyday features you actually use."
+    },
+    {
+      "id": 42,
+      "slug": "summit-power-bank-pro",
+      "name": "Summit Power Bank Pro",
+      "brand": "Summit",
+      "category": "Power",
+      "sku": "SUM-10042",
+      "description": "The Summit Power Bank Pro. A dependable power pick with a clean, no-nonsense design and the everyday features you actually use."
+    },
+    {
+      "id": 132,
+      "slug": "meridian-indoor-camera-mini",
+      "name": "Meridian Indoor Camera Mini",
+      "brand": "Meridian",
+      "category": "Smart Home",
+      "sku": "MER-10132",
+      "description": "The Meridian Indoor Camera Mini. A dependable smart home pick with a clean, no-nonsense design and the everyday features you actually use."
+    },
+    {
+      "id": 940,
+      "slug": "vantablack-hardshell-case-studio",
+      "name": "Vantablack Hardshell Case Studio",
+      "brand": "Vantablack",
+      "category": "Bags",
+      "sku": "VAN-10940",
+      "description": "The Vantablack Hardshell Case Studio. A dependable bags pick with a clean, no-nonsense design and the everyday features you actually use."
+    },
+    {
+      "id": 696,
+      "slug": "amperage-bridge-hub-s",
+      "name": "Amperage Bridge Hub S",
+      "brand": "Amperage",
+      "category": "Smart Home",
+      "sku": "AMP-10696",
+      "description": "The Amperage Bridge Hub S. A dependable smart home pick with a clean, no-nonsense design and the everyday features you actually use."
+    },
+    {
+      "id": 92,
+      "slug": "auralite-cloudbook-mini",
+      "name": "Auralite Cloudbook Mini",
+      "brand": "Auralite",
+      "category": "Laptops",
+      "sku": "AUR-10092",
+      "description": "The Auralite Cloudbook Mini. A dependable laptops pick with a clean, no-nonsense design and the everyday features you actually use."
+    }
+  ]
+}

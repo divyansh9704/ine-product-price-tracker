@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: product-price-tracker-backend
+    env: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: HOST
+        value: 0.0.0.0
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: CRON_SECRET
+        sync: false
+      - key: FRONTEND_ORIGIN
+        sync: false
+      - key: STORE_BASE_URL
+        value: https://demo.inelabteamdev.com
+      - key: SENDGRID_API_KEY
+        sync: false
+      - key: ALERT_EMAIL_TO
+        sync: false

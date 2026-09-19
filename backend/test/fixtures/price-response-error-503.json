@@ -1,0 +1,5 @@
+{
+  "error": "upstream_error",
+  "status": 503,
+  "message": "Store backend timed out fetching live price"
+}

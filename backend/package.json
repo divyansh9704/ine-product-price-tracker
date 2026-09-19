@@ -1,0 +1,29 @@
+{
+  "name": "product-price-tracker-backend",
+  "version": "1.0.0",
+  "description": "Backend API and resilient scraper for Product Price Tracker",
+  "type": "module",
+  "main": "src/server.js",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test test/**/*.test.js",
+    "test:unit": "node --test test/unit/*.test.js",
+    "test:integration": "node --test test/integration/*.test.js",
+    "scrape:headed": "node src/cli/headed-scrape.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.1",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.0.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "playwright": "^1.50.1"
+  }
+}
