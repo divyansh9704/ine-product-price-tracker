@@ -24,8 +24,8 @@ Below are all required deliverables, live cloud links, and architectural highlig
    - Backend API & Health Check (Render): **https://ine-product-price-tracker-attc.onrender.com/health**
 2. **Public GitHub Repository**:  
    - URL: **https://github.com/divyansh9704/ine-product-price-tracker**
-3. **Screen Recording (2–4 Minutes)**:  
-   - Video URL: `[PASTE_YOUR_VIDEO_LINK_HERE]`  
+3. **Screen Recording (Video Demo)**:  
+   - Video URL: **https://www.loom.com/share/876e8cf34975420ba5901f7025209fe8**  
    *(Demonstrates the headed Playwright browser, cookie dismissal, 1.2s dwell-time simulation, SHA-256 PoW/Wasm execution, 503 fault injection, live Bento dashboard, Bloomberg-style area chart, and CSV export)*
 4. **Automated 2-Hour Scheduling (cron-job.org)**:  
    - Triggering: `POST https://ine-product-price-tracker-attc.onrender.com/api/cron/scrape`  
@@ -35,7 +35,7 @@ Below are all required deliverables, live cloud links, and architectural highlig
    - Reverse-Engineered Protocol & Wasm Breakdown: [`docs/PROTOCOL_EXPLAINED.md`](https://github.com/divyansh9704/ine-product-price-tracker/blob/master/docs/PROTOCOL_EXPLAINED.md)  
    - Real AI Mistakes & Engineering Defect Log: [`docs/AI_MISTAKES_LOG.md`](https://github.com/divyansh9704/ine-product-price-tracker/blob/master/docs/AI_MISTAKES_LOG.md)  
    - Local Verification & Testing Guide: [`docs/LOCAL_VERIFY.md`](https://github.com/divyansh9704/ine-product-price-tracker/blob/master/docs/LOCAL_VERIFY.md)  
-   - 2–4 Min Recording Cue Sheet: [`docs/RECORDING_SCRIPT.md`](https://github.com/divyansh9704/ine-product-price-tracker/blob/master/docs/RECORDING_SCRIPT.md)
+   - Recording Cue Sheet: [`docs/RECORDING_SCRIPT.md`](https://github.com/divyansh9704/ine-product-price-tracker/blob/master/docs/RECORDING_SCRIPT.md)
 6. **Resume**: Attached as PDF (`Divyansh_Sharma_Resume.pdf`).
 
 ---
