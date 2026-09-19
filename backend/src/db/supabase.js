@@ -17,6 +17,9 @@ export function createSupabaseClient(cfg = config) {
     auth: {
       persistSession: false,
       autoRefreshToken: false
+    },
+    realtime: {
+      transport: class NodeWebSocketShim {}
     }
   });
 }

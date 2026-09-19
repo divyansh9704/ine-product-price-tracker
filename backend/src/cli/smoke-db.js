@@ -63,7 +63,7 @@ async function main() {
     const { data: existingProduct } = await db
       .from('tracked_products')
       .select('*')
-      .eq('store_product_id', testStoreProductId)
+      .eq('store_product_id', String(testStoreProductId))
       .maybeSingle();
 
     let createdNewProduct = false;
@@ -75,8 +75,9 @@ async function main() {
       const { data: newProd, error: insertErr } = await db
         .from('tracked_products')
         .insert({
-          store_product_id: testStoreProductId,
+          store_product_id: String(testStoreProductId),
           name: `Smoke Test Product (${testRunTag})`,
+          url: `https://demo.inelabteamdev.com/product/${testStoreProductId}`,
           category: 'Testing',
           scrape_interval_minutes: 120,
           next_scrape_at: new Date().toISOString(),
@@ -112,7 +113,8 @@ async function main() {
     // STEP 2: Execute SUCCESSFUL scrape against real store
     // -------------------------------------------------------------
     console.log(`\n🚀 [2/4] Executing real scrape against demo.inelabteamdev.com...`);
-    const successOutcome = await scrapeProduct(db, testStoreProductId, {
+    const successOutcome = await scrapeProduct(testProduct, {
+      db,
       baseUrl: 'https://demo.inelabteamdev.com'
     });
 
@@ -161,7 +163,8 @@ async function main() {
     const failureHistoryBaseline = postSuccessHistoryCount;
     const failureLogBaseline = postSuccessLogCount;
 
-    const failureOutcome = await scrapeProduct(db, testStoreProductId, {
+    const failureOutcome = await scrapeProduct(testProduct, {
+      db,
       baseUrl: 'http://127.0.0.1:1', // Unreachable port -> instant connection refused
       maxAttempts: 2,
       baseBackoffMs: 200
