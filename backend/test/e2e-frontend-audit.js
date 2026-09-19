@@ -28,7 +28,7 @@ async function runE2EAudit() {
   await refreshCatalogCache({ baseUrl: 'https://demo.inelabteamdev.com' });
 
   // 1. Boot local backend on port 3000
-  console.log('🔌 [1/6] Booting local backend API server on port 3000...');
+  console.log('🔌 [1/6] Booting local backend API server on port 3000 (DATABASE: In-Memory FakeDatabase - fully offline reproducible)...');
   const db = createFakeDatabase();
   const backendApp = createApp({
     db,
@@ -230,6 +230,7 @@ async function runE2EAudit() {
   console.log(`Total Checks Executed:      ${totalChecks}`);
   console.log(`Checks PASSED:              ${passedChecks}`);
   console.log(`Checks FAILED:              ${failedChecks}`);
+  console.log(`Database Engine:            In-Memory FakeDatabase (Offline reproducible)`);
   console.log(`Browser Console Errors:     ${consoleErrors.length}`);
   console.log(`Page Uncaught Exceptions:   ${pageErrors.length}`);
   console.log(`Network HTTP Failures:      ${networkErrors.length}`);

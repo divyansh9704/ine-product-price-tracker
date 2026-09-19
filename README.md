@@ -83,7 +83,9 @@ graph TD
 6. **Dynamic Currency Normalization (Amendment 6)**:
    - Currency is parsed dynamically from decrypted quotes (`quote.c`, e.g. `"INR"`), never hardcoded.
 7. **Production Memory Safety (Measured 38–70 MB RSS)**:
-   - Pure Node.js Direct Protocol Client runs without headless browsers. Measured baseline RSS is ~24 MB, peaking at ~38–70 MB during Wasm compilation and network fetch (measured via `process.memoryUsage().rss`). This provides > 440 MB headroom on Render's 512 MB free tier limit. Measured scrape latency ranges from 146 ms (warm) to 2,400 ms under upstream throttling.
+   - Pure Node.js Direct Protocol Client runs without headless browsers. Measured baseline RSS is ~24 MB, peaking at ~38–70 MB during Wasm compilation and network fetch (measured via `process.memoryUsage().rss`). This provides > 440 MB headroom on Render's 512 MB free tier limit. Scrape latency is about 150–250 ms warm, up to about 9 s cold when encountering backoff retries or initial uncompiled Wasm JIT. Wasm modules are cached in-memory for the process lifetime.
+8. **Automated Alert Generation**:
+   - All 4 alert types (`structure_changed`, `price_drop`, `back_in_stock`, and `scrape_failing` after 3 consecutive failures) are handled directly in the atomic PostgreSQL RPC layer and rendered in the frontend banner.
 
 ---
 
@@ -114,7 +116,7 @@ Frontend starts on `http://localhost:5173`.
 
 ## Automated Test Suite
 
-Run the full suite of **68 tests across 19 suites**:
+Run the full suite of **72 tests across 20 suites**:
 ```bash
 cd backend
 npm test
@@ -122,7 +124,8 @@ npm test
 To run tests by category:
 ```bash
 npm run test:unit          # Unit tests: Parser, Validator, Retry, Classifier
-npm run test:integration   # Integration tests: Scraper faults, Atomic RPC, Express API
+npm run test:integration   # Integration tests: Scraper faults, Atomic RPC, Alerts, Express API
+npm run test:e2e           # Automated end-to-end browser audit (Playwright against FakeDatabase)
 ```
 
 ---
@@ -139,6 +142,13 @@ npm run scrape:once -- --product 125 --dry-run
 
 # Scrape and persist to DB
 npm run scrape:once -- --product 125
+```
+
+### Real Supabase Smoke Verification (`npm run smoke:db`)
+Runs live atomic invariant verification against the Supabase database specified in `backend/.env`:
+```bash
+cd backend
+npm run smoke:db
 ```
 
 ### Headed Observable Scraper with Playwright (`npm run scrape:headed`)
@@ -171,6 +181,8 @@ npm run scrape:headed -- --product 125 --dry-run --inject-fault=slow
 | `CRON_SECRET` | Yes (in prod) | `local-dev-cron-secret` | Shared secret for `x-cron-secret` header |
 | `FRONTEND_ORIGIN` | No | `http://localhost:5173` | Allowed CORS origin (Vercel URL in prod) |
 | `STORE_BASE_URL` | No | `https://demo.inelabteamdev.com` | Target store URL |
+| `SCRAPE_CONCURRENCY` | No | `2` | Max concurrent scrapes (can set to `1` on low-CPU instances) |
+| `SCRAPE_TIMEOUT_MS` | No | `15000` | AbortController request timeout (15s default for cold starts) |
 
 ### Frontend (`frontend/.env`)
 

@@ -25,8 +25,8 @@ async function main() {
     process.exit(1);
   }
 
-  console.log(`🔌 Supabase URL: ${supabaseUrl}`);
-  console.log(`🔑 Service Role Key: ${serviceKey.slice(0, 12)}...`);
+  console.log(`🔌 Supabase URL: ${supabaseUrl ? '[CONFIGURED]' : '[MISSING]'}`);
+  console.log(`🔑 Service Role Key: ${serviceKey ? '[CONFIGURED]' : '[MISSING]'}`);
 
   let db;
   try {

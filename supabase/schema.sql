@@ -134,6 +134,8 @@ DECLARE
     v_history_id UUID;
     v_interval_mins INTEGER;
     v_result JSONB;
+    v_prev_price_cents INTEGER;
+    v_prev_in_stock BOOLEAN;
 BEGIN
     -- 1. Verify product exists and read scrape_interval_minutes
     SELECT scrape_interval_minutes INTO v_interval_mins
@@ -143,6 +145,13 @@ BEGIN
     IF NOT FOUND THEN
         RAISE EXCEPTION 'Product % not found', p_product_id;
     END IF;
+
+    -- Look up previous price and stock status for alerts before inserting new record
+    SELECT price_cents, in_stock INTO v_prev_price_cents, v_prev_in_stock
+    FROM price_history
+    WHERE product_id = p_product_id
+    ORDER BY scraped_at DESC
+    LIMIT 1;
 
     -- 2. Update scrape_log row
     UPDATE scrape_log
@@ -191,6 +200,26 @@ BEGIN
         next_scrape_at = now() + (COALESCE(v_interval_mins, 120) * INTERVAL '1 minute')
     WHERE id = p_product_id;
 
+    -- 5. Trigger Alerts: price_drop
+    IF v_prev_price_cents IS NOT NULL AND p_price_cents < v_prev_price_cents THEN
+        INSERT INTO alerts (product_id, type, message)
+        VALUES (
+            p_product_id,
+            'price_drop',
+            'Price dropped from ' || p_currency || ' ' || (v_prev_price_cents::numeric / 100)::text || ' to ' || p_currency || ' ' || (p_price_cents::numeric / 100)::text
+        );
+    END IF;
+
+    -- 6. Trigger Alerts: back_in_stock
+    IF v_prev_in_stock IS NOT NULL AND v_prev_in_stock = false AND p_in_stock = true THEN
+        INSERT INTO alerts (product_id, type, message)
+        VALUES (
+            p_product_id,
+            'back_in_stock',
+            'Product is back in stock!'
+        );
+    END IF;
+
     v_result := jsonb_build_object(
         'success', true,
         'history_id', v_history_id,
@@ -221,6 +250,7 @@ AS $$
 DECLARE
     v_interval_mins INTEGER;
     v_result JSONB;
+    v_recent_failures INTEGER;
 BEGIN
     SELECT scrape_interval_minutes INTO v_interval_mins
     FROM tracked_products
@@ -245,10 +275,35 @@ BEGIN
         next_scrape_at = now() + (COALESCE(v_interval_mins, 120) * INTERVAL '1 minute')
     WHERE id = p_product_id;
 
-    -- 3. Create alert if structure changed or scrape failing
+    -- 3. Create alert if structure changed
     IF p_structure_changed THEN
         INSERT INTO alerts (product_id, type, message)
         VALUES (p_product_id, 'structure_changed', COALESCE(p_error_message, 'Store response structure changed'));
+    END IF;
+
+    -- 4. Create alert if 3 consecutive scrapes failed
+    SELECT COUNT(*) INTO v_recent_failures
+    FROM (
+        SELECT status
+        FROM scrape_log
+        WHERE product_id = p_product_id
+        ORDER BY started_at DESC
+        LIMIT 3
+    ) sub
+    WHERE status = 'failed';
+
+    IF v_recent_failures >= 3 THEN
+        IF NOT EXISTS (
+            SELECT 1 FROM alerts
+            WHERE product_id = p_product_id AND type = 'scrape_failing' AND is_read = false
+        ) THEN
+            INSERT INTO alerts (product_id, type, message)
+            VALUES (
+                p_product_id,
+                'scrape_failing',
+                'Scrape has failed 3 consecutive times: ' || COALESCE(p_error_message, 'Persistent scrape error')
+            );
+        END IF;
     END IF;
 
     v_result := jsonb_build_object(

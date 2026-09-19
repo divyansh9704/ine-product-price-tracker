@@ -160,12 +160,12 @@ To ensure total transparency, the following table details every value submitted 
 | `timestamps` (`at`, `hoverAt`, `clickAt`) | **Computed** | Dynamic UTC timestamps calculated using `Date.now()`. Coordinates dynamic dwell times ($\ge 1200\text{ ms}$). | Store requires monotonic clock validations or strict NTP alignment. |
 | `moves` | **Computed** | Generates 12 realistic cursor interpolation points spaced $\ge 65\text{ ms}$ apart with non-linear offsets. | Store adds ML-based bezier curve velocity detection. |
 | `quote.p, s, c` | **Computed (Decrypted)** | Decrypted dynamically using XOR cipher against SHA-256 derived from bearer token. | Store changes encryption cipher (e.g. AES-GCM) or token derivation format. |
-| `canvas` hash | **Hardcoded** | `'b93ad65b96d012a5'` — extracted from Google Chrome 124 canvas 2D rendering buffer hash on Windows. | Store changes the 2D canvas drawing prompt (text, font, bezier curves) used to compute the fingerprint. |
-| `gl` hash | **Hardcoded** | `'bb3723445bc1f3b4'` — extracted from Chrome ANGLE Direct3D/Metal WebGL context hash. | Store changes the WebGL shader program or verifies renderer string against known GPU drivers. |
+| `canvas` hash | **Hardcoded** | `'b93ad65b96d012a5'` — extracted by executing the store's canvas fingerprinting routine in real Google Chrome on Windows via CDP during Phase 0 recon. | Store changes the 2D canvas drawing prompt (text, font, bezier curves) used to compute the fingerprint. |
+| `gl` hash | **Hardcoded** | `'bb3723445bc1f3b4'` — extracted by executing the store's WebGL context fingerprinting routine in real Chrome via CDP during Phase 0 recon. | Store changes the WebGL shader program or verifies renderer string against known GPU drivers. |
 | `hc` | **Hardcoded** | `4` — standard hardware concurrency thread count. | Store checks against navigator thread count heuristics or worker thread counts. |
-| `scr` | **Hardcoded** | `[800, 600, 1]` — standard window resolution and devicePixelRatio. | Store enforces common mobile/desktop viewport presets. |
-| `frames` | **Hardcoded** | `[16.6, 16.7, 16.6, 16.7]` — standard 60 Hz display refresh pacing intervals. | Store demands microsecond precision high-resolution performance timers. |
-| `shared-key` | **Hardcoded** | `'ine-mock-store-shared-k3y'` — extracted by static reverse-engineering of `bundle.js`. | Store rotates the shared secret key on backend deployments. |
+| `scr` | **Hardcoded** | `[800, 600, 1]` — standard window resolution and devicePixelRatio as defined in `constants.js`. | Store enforces common mobile/desktop viewport presets. |
+| `frames` | **Hardcoded** | `[16.67, 16.66, 16.68, 16.65, 16.67, 16.66, 16.68, 16.67]` — standard 60 Hz display refresh pacing intervals as defined in `constants.js`. | Store demands microsecond precision high-resolution performance timers. |
+| `shared-key` | **Hardcoded** | `'ine-mock-store-shared-k3y'` — extracted by static reverse-engineering of `vendor-wasm.js` / bundle. | Store rotates the shared secret key on backend deployments. |
 
 ### How the Scraper Responds to Protocol Changes
 If any hardcoded value stops working or the store changes its challenge protocol:

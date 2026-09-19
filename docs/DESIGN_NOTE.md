@@ -39,15 +39,15 @@ To ensure total transparency, the following table details which values are copie
 
 | Telemetry / Handshake Parameter | Source / Technique | Classification |
 |---|---|---|
-| **Shared Secret Key** | Extracted from deobfuscated store client `bundle.js` (`'ine-mock-store-shared-k3y'`). | **Copied / Hardcoded** |
-| **Canvas 2D Hash** | Extracted from real Google Chrome 124 browser rendering on Windows (`'b93ad65b96d012a5'`). | **Copied / Hardcoded** |
-| **WebGL Driver Hash** | Extracted from real Chrome ANGLE Direct3D/Metal WebGL context (`'bb3723445bc1f3b4'`). | **Copied / Hardcoded** |
-| **Hardware Concurrency** | Standard quad-core CPU threads (`4`). | **Synthesized** |
-| **Screen Dimensions** | Viewport preset (`[800, 600, 1]`). | **Synthesized** |
-| **Display Frame Intervals** | Standard 60 Hz display refresh pacing (`[16.6, 16.7, 16.6, 16.7]`). | **Synthesized** |
-| **Cursor Trajectories (`moves`)** | 12 non-linear coordinate points with $\ge 65\text{ ms}$ intervals and 1200ms dwell time. | **Synthesized dynamically** |
+| **Shared Secret Key** | Extracted from deobfuscated store client `vendor-wasm.js` / bundle (`'ine-mock-store-shared-k3y'`). | **Copied / Hardcoded** |
+| **Canvas 2D Hash** | Extracted by executing the store's canvas fingerprinting routine in real Google Chrome on Windows via CDP (`'b93ad65b96d012a5'`). | **Copied / Hardcoded** |
+| **WebGL Driver Hash** | Extracted by executing the store's WebGL context fingerprinting routine in real Chrome ANGLE WebGL context via CDP (`'bb3723445bc1f3b4'`). | **Copied / Hardcoded** |
+| **Hardware Concurrency (`hc`)** | Standard quad-core CPU threads (`4`). | **Synthesized** |
+| **Screen Dimensions (`scr`)** | Viewport preset (`[800, 600, 1]`) matching `constants.js`. | **Synthesized** |
+| **Display Frame Intervals** | Standard 60 Hz display refresh pacing (`[16.67, 16.66, 16.68, 16.65, 16.67, 16.66, 16.68, 16.67]`). | **Synthesized** |
+| **Cursor Trajectories (`moves`)** | 12 non-linear coordinate points with $\ge 65\text{ ms}$ intervals and 1200ms dwell time generated in `fetcher.js`. | **Synthesized dynamically** |
 | **Timestamps (`at`, `hoverAt`, `clickAt`)** | Dynamic UTC timestamps generated via `Date.now()`. | **Synthesized dynamically** |
-| **WebAssembly Output (`wasmOut`)** | Base64 Wasm compiled in-memory; executed using V8 `exports.f(seed)`. | **Computed dynamically** |
+| **WebAssembly Output (`wasmOut`)** | Base64 Wasm compiled and cached in-memory; executed using V8 `exports.f(seed)`. | **Computed dynamically** |
 | **Proof-of-Work Nonce (`nonce`)** | Incrementing counter until `sha256(salt + ":" + nonce)` satisfies `difficulty`. | **Computed dynamically** |
 | **Session Key & Decryption** | SHA-256 HMAC derived from salt, Wasm output, and attestation hash. | **Computed dynamically** |
 

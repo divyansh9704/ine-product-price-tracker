@@ -38,10 +38,21 @@ export function solveProofOfWork(salt, difficulty) {
   }
 }
 
-// In-memory WebAssembly module compilation and execution
+// In-memory cache for compiled WebAssembly modules across scrapes
+const wasmModuleCache = new Map();
+
+export function clearWasmCache() {
+  wasmModuleCache.clear();
+}
+
+// In-memory WebAssembly module compilation and execution with process-lifetime caching
 export async function executeWasm(wasmBase64, seed) {
-  const buffer = Buffer.from(wasmBase64, 'base64');
-  const module = await WebAssembly.compile(buffer);
+  let module = wasmModuleCache.get(wasmBase64);
+  if (!module) {
+    const buffer = Buffer.from(wasmBase64, 'base64');
+    module = await WebAssembly.compile(buffer);
+    wasmModuleCache.set(wasmBase64, module);
+  }
   const instance = await WebAssembly.instantiate(module);
   if (!instance.exports || typeof instance.exports.f !== 'function') {
     const err = new Error('Wasm module does not export required function f');

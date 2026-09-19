@@ -13,8 +13,8 @@ export const ERROR_TAXONOMY = Object.freeze({
   VALIDATION_FAILED: 'VALIDATION_FAILED'
 });
 
-// Hard request timeout via AbortController
-export const REQUEST_TIMEOUT_MS = 10000;
+// Request timeout via AbortController (15s default to accommodate slow-CPU Render cold starts)
+export const REQUEST_TIMEOUT_MS = parseInt(process.env.SCRAPE_TIMEOUT_MS || '15000', 10);
 
 // Scraper retry policy
 export const MAX_ATTEMPTS = 4;
@@ -47,8 +47,8 @@ export const PRICE_AGREEMENT_TOLERANCE = 0.05;
 // Idempotency threshold: skip duplicate cron triggers if succeeded within 20 minutes
 export const IDEMPOTENCY_WINDOW_MS = 20 * 60 * 1000;
 
-// Max concurrency for multi-product scraping
-export const CONCURRENCY_LIMIT = 3;
+// Max concurrency for multi-product scraping (default 2, configurable via SCRAPE_CONCURRENCY)
+export const CONCURRENCY_LIMIT = Math.max(1, parseInt(process.env.SCRAPE_CONCURRENCY || '2', 10));
 
 // Stale run lock expiration (10 minutes)
 export const STALE_RUN_LOCK_MS = 10 * 60 * 1000;

@@ -22,6 +22,10 @@ const envSchema = z.object({
   // Hard rule: Scrape ONLY demo.inelabteamdev.com
   STORE_BASE_URL: z.string().url().default('https://demo.inelabteamdev.com'),
   
+  // Scraper concurrency and timeout (configurable for Render low-CPU free tier)
+  SCRAPE_CONCURRENCY: z.coerce.number().min(1).default(2),
+  SCRAPE_TIMEOUT_MS: z.coerce.number().min(1000).default(15000),
+
   // Optional alerts
   SENDGRID_API_KEY: z.string().optional(),
   ALERT_EMAIL_TO: z.string().email().optional()
@@ -59,6 +63,8 @@ export const config = Object.freeze({
   cronSecret: env.CRON_SECRET,
   frontendOrigin: env.FRONTEND_ORIGIN,
   storeBaseUrl: env.STORE_BASE_URL,
+  scrapeConcurrency: env.SCRAPE_CONCURRENCY,
+  scrapeTimeoutMs: env.SCRAPE_TIMEOUT_MS,
   email: {
     apiKey: env.SENDGRID_API_KEY,
     to: env.ALERT_EMAIL_TO

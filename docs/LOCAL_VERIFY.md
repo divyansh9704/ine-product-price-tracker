@@ -20,26 +20,61 @@ All automated unit and integration tests run against an **in-memory fake databas
 # Navigate to the backend directory
 cd backend
 
-# Run the complete test suite (Unit + Integration: 68 tests, 19 suites)
+# Run the complete test suite (Unit + Integration: 72 tests, 20 suites)
 npm test
 
 # Run unit tests only (Validator, Parser, Error Classifier, Retry Policy)
 npm run test:unit
 
-# Run integration tests only (Fault injection, Concurrency, Atomic RPC, Idempotency, Express API)
+# Run integration tests only (Fault injection, Concurrency, Atomic RPC, Alerts, Idempotency, Express API)
 npm run test:integration
+
+# Run automated browser click-through audit (Playwright against FakeDatabase)
+npm run test:e2e
 ```
 
 ### Expected Output Summary:
 ```text
-# tests 68
-# suites 19
-# pass 68
+# tests 72
+# suites 20
+# pass 72
 # fail 0
 # cancelled 0
 # skipped 0
 # todo 0
 ```
+
+---
+
+## 3. Real Supabase Smoke Verification (`npm run smoke:db`)
+
+Runs live atomic write verification against your **real Supabase PostgreSQL instance** specified in `backend/.env`:
+- **Prerequisite**: Set `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` in `backend/.env`. (If credentials are missing or unconfigured, the script gracefully halts with instructions).
+- **Execution**:
+  ```bash
+  cd backend
+  npm run smoke:db
+  ```
+- **What it tests**:
+  1. Creates temporary record in `tracked_products`.
+  2. Executes successful live scrape, asserting exactly 1 `scrape_log` and 1 `price_history` row.
+  3. Forces a failure (unreachable host), asserting exactly 1 failed `scrape_log` row and ZERO new `price_history` rows.
+  4. Cleans up all test rows from `tracked_products` (cascading to history and logs).
+  5. Prints PASS/FAIL per assertion.
+
+---
+
+## 4. Automated End-to-End Browser Audit (`npm run test:e2e`)
+
+Automates a full browser click-through verifying all frontend flows against the backend Express server:
+- **Database Engine**: Explicitly boots with the **In-Memory FakeDatabase** layer, making the browser test 100% self-contained, deterministic, and runnable offline without needing external database credentials.
+- **Execution**:
+  ```bash
+  cd backend
+  npm run test:e2e
+  ```
+- **Flows audited**: Dashboard empty state -> Track modal -> Store catalog search -> Frequency selection (240m) -> Tracking creation -> Detail page navigation -> Recharts time-series chart -> Scrape log table -> Manual "Scrape Now" -> Back to Dashboard -> Search filter.
+- **Assertions**: 14 automated assertions checking for 0 console errors, 0 uncaught exceptions, and 0 HTTP failures.
 
 ---
 

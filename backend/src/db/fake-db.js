@@ -237,6 +237,12 @@ export class FakeDatabase {
         return { data: null, error: { message: `Product ${p_product_id} not found` } };
       }
 
+      // Look up previous price history for product to check for price_drop and back_in_stock
+      const prevHistories = Array.from(this.tables.price_history.values())
+        .filter(h => h.product_id === p_product_id)
+        .sort((a, b) => new Date(b.scraped_at) - new Date(a.scraped_at));
+      const prevHistory = prevHistories[0];
+
       // 1. Update scrape_log
       const log = this.tables.scrape_log.get(p_scrape_log_id) || { id: p_scrape_log_id, product_id: p_product_id };
       log.status = p_status;
@@ -272,6 +278,32 @@ export class FakeDatabase {
       product.last_success_at = now;
       product.next_scrape_at = nextScrape;
       this.tables.tracked_products.set(p_product_id, product);
+
+      // 4. Trigger Alerts: price_drop
+      if (prevHistory && p_price_cents < prevHistory.price_cents) {
+        const alertId = this.genId();
+        this.tables.alerts.set(alertId, {
+          id: alertId,
+          product_id: p_product_id,
+          type: 'price_drop',
+          message: `Price dropped from ${p_currency || 'INR'} ${(prevHistory.price_cents / 100).toFixed(2)} to ${p_currency || 'INR'} ${(p_price_cents / 100).toFixed(2)}`,
+          created_at: now,
+          is_read: false
+        });
+      }
+
+      // 5. Trigger Alerts: back_in_stock
+      if (prevHistory && prevHistory.in_stock === false && p_in_stock === true) {
+        const alertId = this.genId();
+        this.tables.alerts.set(alertId, {
+          id: alertId,
+          product_id: p_product_id,
+          type: 'back_in_stock',
+          message: 'Product is back in stock!',
+          created_at: now,
+          is_read: false
+        });
+      }
 
       return {
         data: {
@@ -331,6 +363,29 @@ export class FakeDatabase {
           created_at: now,
           is_read: false
         });
+      }
+
+      // 4. Create alert if 3 consecutive scrapes failed
+      const recentLogs = Array.from(this.tables.scrape_log.values())
+        .filter(l => l.product_id === p_product_id)
+        .sort((a, b) => new Date(b.started_at) - new Date(a.started_at))
+        .slice(0, 3);
+      
+      const consecutiveFailures = recentLogs.filter(l => l.status === 'failed').length;
+      if (consecutiveFailures >= 3) {
+        const hasUnreadAlert = Array.from(this.tables.alerts.values())
+          .some(a => a.product_id === p_product_id && a.type === 'scrape_failing' && !a.is_read);
+        if (!hasUnreadAlert) {
+          const alertId = this.genId();
+          this.tables.alerts.set(alertId, {
+            id: alertId,
+            product_id: p_product_id,
+            type: 'scrape_failing',
+            message: `Scrape has failed 3 consecutive times: ${p_error_message || 'Persistent scrape error'}`,
+            created_at: now,
+            is_read: false
+          });
+        }
       }
 
       return {
