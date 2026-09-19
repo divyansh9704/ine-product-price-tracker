@@ -21,7 +21,7 @@ Below are the required deliverables, links, and project highlights:
 
 1. **Live Hosted Web Application**:  
    - Frontend (Vercel): `https://<your-vercel-frontend-url>.vercel.app`
-   - Backend API & Health Check (Render): `https://<your-render-backend-url>.onrender.com/health`
+   - Backend API & Health Check (Render): `https://ine-product-price-tracker-attc.onrender.com/health`
 2. **Public GitHub Repository**:  
    - URL: **https://github.com/divyansh9704/ine-product-price-tracker**
 3. **Screen Recording (2–4 Minutes)**:  
