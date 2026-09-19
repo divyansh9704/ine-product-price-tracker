@@ -59,7 +59,10 @@ export class FakeDatabase {
       limitCount: null,
       rangeBounds: null,
       isSingle: false,
-      insertedRows: null
+      isMaybeSingle: false,
+      insertedRows: null,
+      updateFields: null,
+      isDelete: false
     };
 
     const builder = {
@@ -68,11 +71,11 @@ export class FakeDatabase {
         return builder;
       },
       eq: (col, val) => {
-        state.filters.push(row => row[col] === val);
+        state.filters.push(row => row[col] === val || String(row[col]) === String(val));
         return builder;
       },
       neq: (col, val) => {
-        state.filters.push(row => row[col] !== val);
+        state.filters.push(row => row[col] !== val && String(row[col]) !== String(val));
         return builder;
       },
       lte: (col, val) => {
@@ -84,7 +87,7 @@ export class FakeDatabase {
         return builder;
       },
       in: (col, vals) => {
-        state.filters.push(row => vals.includes(row[col]));
+        state.filters.push(row => vals.includes(row[col]) || vals.map(String).includes(String(row[col])));
         return builder;
       },
       order: (col, { ascending = true } = {}) => {
@@ -101,6 +104,12 @@ export class FakeDatabase {
       },
       single: () => {
         state.isSingle = true;
+        state.isMaybeSingle = false;
+        return builder;
+      },
+      maybeSingle: () => {
+        state.isSingle = true;
+        state.isMaybeSingle = true;
         return builder;
       },
       insert: (rows) => {
@@ -113,39 +122,15 @@ export class FakeDatabase {
           inserted.push(record);
         }
         state.insertedRows = inserted;
-        // Return builder to allow chaining .select().single()
         return builder;
       },
       update: (fields) => {
-        return {
-          eq: async (col, val) => {
-            let count = 0;
-            const updated = [];
-            for (const [id, row] of table.entries()) {
-              if (row[col] === val) {
-                const newRecord = { ...row, ...fields };
-                table.set(id, newRecord);
-                updated.push(newRecord);
-                count++;
-              }
-            }
-            return { data: updated, count, error: null };
-          }
-        };
+        state.updateFields = fields;
+        return builder;
       },
       delete: () => {
-        return {
-          eq: async (col, val) => {
-            let count = 0;
-            for (const [id, row] of table.entries()) {
-              if (row[col] === val) {
-                table.delete(id);
-                count++;
-              }
-            }
-            return { count, error: null };
-          }
-        };
+        state.isDelete = true;
+        return builder;
       },
       then: (resolve, reject) => {
         // If an insert was performed
@@ -158,10 +143,40 @@ export class FakeDatabase {
           return;
         }
 
+        // Apply filters
         let rows = Array.from(table.values());
         for (const f of state.filters) {
           rows = rows.filter(f);
         }
+
+        // Handle delete
+        if (state.isDelete) {
+          let count = 0;
+          for (const r of rows) {
+            table.delete(r.id);
+            count++;
+          }
+          resolve({ data: null, count, error: null });
+          return;
+        }
+
+        // Handle update
+        if (state.updateFields !== null) {
+          const updated = [];
+          for (const r of rows) {
+            const newRecord = { ...r, ...state.updateFields };
+            table.set(r.id, newRecord);
+            updated.push(newRecord);
+          }
+          if (state.isSingle) {
+            resolve({ data: updated[0] || null, error: null });
+          } else {
+            resolve({ data: updated, count: updated.length, error: null });
+          }
+          return;
+        }
+
+        // Sorting
         if (state.orderRule) {
           const { col, ascending } = state.orderRule;
           rows.sort((a, b) => {
@@ -170,6 +185,8 @@ export class FakeDatabase {
             return 0;
           });
         }
+
+        // Pagination
         if (state.rangeBounds) {
           const { from, to } = state.rangeBounds;
           rows = rows.slice(from, to + 1);
@@ -179,7 +196,11 @@ export class FakeDatabase {
 
         if (state.isSingle) {
           if (rows.length === 0) {
-            resolve({ data: null, error: { message: 'Row not found', code: 'PGRST116' } });
+            if (state.isMaybeSingle) {
+              resolve({ data: null, error: null });
+            } else {
+              resolve({ data: null, error: { message: 'Row not found', code: 'PGRST116' } });
+            }
           } else {
             resolve({ data: rows[0], error: null });
           }
@@ -327,4 +348,7 @@ export class FakeDatabase {
 }
 
 export const fakeDb = new FakeDatabase();
+export function createFakeDatabase() {
+  return new FakeDatabase();
+}
 export default fakeDb;

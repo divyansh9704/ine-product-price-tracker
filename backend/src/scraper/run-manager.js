@@ -110,9 +110,19 @@ export async function poolAll(items, limit, workerFn) {
 /**
  * Executes a full scheduled scrape run.
  * Amendment 1: Due when next_scrape_at <= now() + 10 minutes.
+ * Supports both executeScheduledScrape({ db, ...options }) and executeScheduledScrape(db, options).
  */
-export async function executeScheduledScrape(options = {}) {
-  const db = options.db || getDb();
+export async function executeScheduledScrape(optionsOrDb = {}, maybeOptions = {}) {
+  let db;
+  let options;
+  if (optionsOrDb && typeof optionsOrDb.from === 'function') {
+    db = optionsOrDb;
+    options = maybeOptions || {};
+  } else {
+    options = optionsOrDb || {};
+    db = options.db || getDb();
+  }
+
   const trigger = options.trigger || 'cron';
   const customFetch = options.fetch;
   const baseUrl = options.baseUrl;
@@ -202,9 +212,12 @@ export async function executeScheduledScrape(options = {}) {
   return summary;
 }
 
+export const executeBatchRun = executeScheduledScrape;
+
 export default {
   acquireRunLock,
   releaseRunLock,
   executeScheduledScrape,
+  executeBatchRun,
   poolAll
 };
