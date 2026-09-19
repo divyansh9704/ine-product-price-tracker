@@ -15,7 +15,8 @@
     "test:integration": "node --test test/integration",
     "scrape:headed": "node src/cli/headed-scrape.js",
     "scrape:once": "node src/cli/scrape-once.js",
-    "smoke:db": "node src/cli/smoke-db.js"
+    "smoke:db": "node src/cli/smoke-db.js",
+    "test:e2e": "node test/e2e-frontend-audit.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.1",
