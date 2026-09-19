@@ -14,7 +14,8 @@ import {
   CheckCircle2,
   Calendar,
   Layers,
-  BarChart3
+  BarChart3,
+  Download
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -140,6 +141,32 @@ export function ProductDetailPage() {
       flagged: Boolean(item.flagged)
     };
   });
+
+  function handleExportCsv() {
+    if (!history || history.length === 0) {
+      alert('No price history records to export yet.');
+      return;
+    }
+    const headers = ['Timestamp', 'Price Cents', 'Formatted Price', 'Currency', 'In Stock', 'Stock Quantity', 'Flagged Jump'];
+    const rows = history.map(h => [
+      `"${new Date(h.scraped_at).toISOString()}"`,
+      h.price_cents,
+      (h.price_cents / 100).toFixed(2),
+      `"${h.currency || 'INR'}"`,
+      h.in_stock ? 'Yes' : 'No',
+      h.stock_quantity !== null && h.stock_quantity !== undefined ? h.stock_quantity : 'N/A',
+      h.flagged ? 'Yes' : 'No'
+    ]);
+    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `product-${product?.store_product_id || id}-price-history.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
 
   const paginatedLogs = logs.slice(logPage * logsPerPage, (logPage + 1) * logsPerPage);
   const totalLogPages = Math.ceil(logs.length / logsPerPage);
@@ -270,15 +297,25 @@ export function ProductDetailPage() {
             </p>
           </div>
 
-          <div className="flex items-center space-x-4 text-xs font-medium text-slate-600">
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs font-medium text-slate-600">
             <div className="flex items-center space-x-1.5">
               <span className="w-3 h-3 rounded-full bg-blue-600 inline-block"></span>
               <span>Price ({stats?.currency || 'INR'})</span>
             </div>
             <div className="flex items-center space-x-1.5">
               <span className="w-3 h-3 rounded-full bg-amber-500 inline-block"></span>
-              <span>$\ge 40\%$ Jump Verified</span>
+              <span>≥ 40% Jump Verified</span>
             </div>
+            {history.length > 0 && (
+              <button
+                onClick={handleExportCsv}
+                className="inline-flex items-center px-2.5 py-1 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-300 rounded-lg shadow-2xs transition duration-150"
+                title="Download complete price history as CSV"
+              >
+                <Download className="w-3 h-3 mr-1 text-slate-500" />
+                Export CSV
+              </button>
+            )}
           </div>
         </div>
 
