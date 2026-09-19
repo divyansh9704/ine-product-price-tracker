@@ -1,15 +1,17 @@
-# 🛍️ Product Price Tracker — Resilient Web-Scraper & Analytics
-
 <div align="center">
 
-[![Node.js Version](https://img.shields.io/badge/node-%3E%3D20.0.0-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
-[![PostgreSQL / Supabase](https://img.shields.io/badge/Supabase-PostgreSQL%2015-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
-[![React](https://img.shields.io/badge/React%2018-SPA%20Vite-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS%203.4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
-[![Render Free Tier](https://img.shields.io/badge/Deploy-Render%20Web%20Service-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://render.com/)
-[![Vercel](https://img.shields.io/badge/Deploy-Vercel%20SPA-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com/)
+<a href="https://ine-product-price-tracker.vercel.app">
+  <img src="assets/hero-banner.svg" alt="Product Price Tracker Animated Hero Banner" width="100%" />
+</a>
+
+<br/><br/>
+
+[![Live Web App](https://img.shields.io/badge/Live%20Frontend-Vercel%20SPA-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://ine-product-price-tracker.vercel.app)
+[![Live Backend API](https://img.shields.io/badge/API%20Health-Render%20Web%20Service-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://ine-product-price-tracker-attc.onrender.com/health)
+[![Loom Video Demo](https://img.shields.io/badge/Video%20Demo-Loom%20Recording-625DF5?style=for-the-badge&logo=loom&logoColor=white)](https://www.loom.com/share/876e8cf34975420ba5901f7025209fe8)
 [![CI Pipeline](https://img.shields.io/github/actions/workflow/status/divyansh9704/ine-product-price-tracker/ci.yml?branch=master&style=for-the-badge&logo=github-actions&logoColor=white&label=CI%20Pipeline)](https://github.com/divyansh9704/ine-product-price-tracker/actions)
-[![Tests](https://img.shields.io/badge/Tests-72%20Passing%20(20%20Suites)-success?style=for-the-badge&logo=jest&logoColor=white)](https://github.com/divyansh9704/ine-product-price-tracker)
+[![Tests Passing](https://img.shields.io/badge/Tests-72%20Passing%20(20%20Suites)-3ECF8E?style=for-the-badge&logo=jest&logoColor=white)](backend/src/__tests__/)
+[![PostgreSQL](https://img.shields.io/badge/Supabase-PostgreSQL%2015-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
 [![Invariants](https://img.shields.io/badge/DB%20Invariants-Atomic%20RPC%20Enforced-blueviolet?style=for-the-badge)](supabase/schema.sql)
 
 <p align="center">
@@ -29,6 +31,19 @@
 
 ---
 
+## 🎬 System Demonstration (Video Recording)
+
+<div align="center">
+  <a href="https://www.loom.com/share/876e8cf34975420ba5901f7025209fe8" target="_blank">
+    <img src="assets/video-banner.svg" alt="Watch Live Demo on Loom" width="100%" />
+  </a>
+  <p align="center">
+    <sub>Click the player banner above to watch the complete 2–4 minute screen walkthrough on Loom with visible Chromium stepping, fault injection, and the live full-stack app.</sub>
+  </p>
+</div>
+
+---
+
 ## 🌟 Executive Summary & Key Highlights
 
 - **Target E-Commerce Store**: Exclusively targets `https://demo.inelabteamdev.com/`.
@@ -37,7 +52,7 @@
 - **Atomic Database Engine**: Enforces strict transactional integrity via PostgreSQL RPCs (`record_scrape_outcome`). It is physically impossible to insert a price history row without an accompanying audit log entry.
 - **40% Volatility Anomaly Detection**: Automatically initiates immediate confirmation re-fetches whenever prices jump $\ge 40\%$. Re-fetch agreement stores and flags the price (`flagged = true`); disagreement drops the quote and triggers alerts.
 - **Comprehensive Audit Log & Alerts**: Full audit logging (duration, HTTP status, attempts, error types) with automated real-time alert generation for `structure_changed`, `price_drop`, `back_in_stock`, and `scrape_failing`.
-- **Glassmorphic Interactive Dashboard**: Built with React 18, Vite, Lucide Icons, and Recharts, featuring animated KPI cards, real-time search filtering, stock status chips, and expandable raw payload logs.
+- **World-Class SaaS Dashboard**: Built with React 18, Vite, Lucide Icons, and Recharts, featuring Bento KPI cards, Grid vs. Dense Table toggle, Bloomberg-style gradient area charts, Command+K search modal, and 1-click CSV export.
 
 ---
 
