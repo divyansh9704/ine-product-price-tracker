@@ -19,3 +19,13 @@ This log records real defects and mistaken assumptions encountered during develo
 - **How it was detected**: Caught by Node runtime stack trace during the execution of `test_real_fp.mjs`.
 - **Root cause**: Upstream store deliberately returns 503 upstream errors intermittently.
 - **How it was fixed**: Added explicit HTTP status code validation before attempting decryption, classifying 503 as `HTTP_5XX` and implementing exponential backoff retry.
+
+---
+
+### Entry 3: FakeDatabase Builder Did Not Support Chained `.select().single()` on `insert()`
+- **Phase**: Phase 2 (Scraper Core & Integration Tests)
+- **What was wrong**: In `fake-db.js`, `insert(rows)` returned an object `{ data, error }` directly instead of returning the query builder. When `scrapeProduct` and `acquireRunLock` chained `.insert(...).select('id').single()`, Node threw `TypeError: db.from(...).insert(...).select is not a function`.
+- **How it was detected**: Caught by automated integration test execution (`npm run test:integration`).
+- **Root cause**: Supabase Postgrest client v2 returns a chainable `PostgrestFilterBuilder` on `insert()` that allows selecting inserted fields before awaiting.
+- **How it was fixed**: Updated `fake-db.js` so `insert()` saves the inserted rows in builder state and returns `this` builder, supporting subsequent `.select()`, `.single()`, and promise resolution (`then()`).
+

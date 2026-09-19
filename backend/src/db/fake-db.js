@@ -19,12 +19,10 @@ export class FakeDatabase {
     };
   }
 
-  // Helper to generate UUIDs
   genId() {
     return crypto.randomUUID();
   }
 
-  // Seed sample products for testing
   seedProduct(productData) {
     const id = productData.id || this.genId();
     const now = new Date().toISOString();
@@ -47,7 +45,6 @@ export class FakeDatabase {
     return product;
   }
 
-  // Query builder implementation
   from(tableName) {
     const table = this.tables[tableName];
     if (!table) {
@@ -61,7 +58,8 @@ export class FakeDatabase {
       orderRule: null,
       limitCount: null,
       rangeBounds: null,
-      isSingle: false
+      isSingle: false,
+      insertedRows: null
     };
 
     const builder = {
@@ -105,7 +103,7 @@ export class FakeDatabase {
         state.isSingle = true;
         return builder;
       },
-      insert: async (rows) => {
+      insert: (rows) => {
         const rowArray = Array.isArray(rows) ? rows : [rows];
         const inserted = [];
         for (const r of rowArray) {
@@ -114,10 +112,9 @@ export class FakeDatabase {
           table.set(id, record);
           inserted.push(record);
         }
-        return {
-          data: state.isSingle ? (inserted[0] || null) : inserted,
-          error: null
-        };
+        state.insertedRows = inserted;
+        // Return builder to allow chaining .select().single()
+        return builder;
       },
       update: (fields) => {
         return {
@@ -150,14 +147,21 @@ export class FakeDatabase {
           }
         };
       },
-      // Execution when awaited as a Promise
       then: (resolve, reject) => {
+        // If an insert was performed
+        if (state.insertedRows !== null) {
+          if (state.isSingle) {
+            resolve({ data: state.insertedRows[0] || null, error: null });
+          } else {
+            resolve({ data: state.insertedRows, error: null });
+          }
+          return;
+        }
+
         let rows = Array.from(table.values());
-        // Apply filters
         for (const f of state.filters) {
           rows = rows.filter(f);
         }
-        // Apply order
         if (state.orderRule) {
           const { col, ascending } = state.orderRule;
           rows.sort((a, b) => {
@@ -166,7 +170,6 @@ export class FakeDatabase {
             return 0;
           });
         }
-        // Apply range / limit
         if (state.rangeBounds) {
           const { from, to } = state.rangeBounds;
           rows = rows.slice(from, to + 1);
@@ -189,7 +192,6 @@ export class FakeDatabase {
     return builder;
   }
 
-  // Implementation of Postgres RPC functions
   async rpc(funcName, params = {}) {
     const now = new Date().toISOString();
 
