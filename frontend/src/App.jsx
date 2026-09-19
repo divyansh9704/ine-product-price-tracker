@@ -1,6 +1,7 @@
 // frontend/src/App.jsx
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
+import { ShieldCheck, GitBranch, ExternalLink, Activity, Terminal } from 'lucide-react';
 import api from './api.js';
 import { Navbar } from './components/Navbar.jsx';
 import { AlertsBanner } from './components/AlertsBanner.jsx';
@@ -75,11 +76,48 @@ export function App() {
         </Routes>
       </main>
 
-      {/* Footer */}
-      <footer className="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>Product Price Tracker &bull; INE Internship Assignment</span>
-          <span className="text-slate-400">Target Store: https://demo.inelabteamdev.com &bull; 2-Hour Scheduling</span>
+      {/* Enterprise SaaS Footer */}
+      <footer className="bg-white/80 backdrop-blur-md border-t border-slate-200 py-8 text-xs text-slate-500 mt-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2 text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-2.5 py-1 rounded-full text-[11px] font-semibold">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                <span>All Scraper Services Operational</span>
+              </div>
+              <span className="text-slate-300 hidden sm:inline">&bull;</span>
+              <span className="text-slate-600 font-medium hidden sm:inline">
+                Target: <code className="font-mono text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded">demo.inelabteamdev.com</code>
+              </span>
+            </div>
+
+            <div className="flex items-center space-x-6 text-slate-500 font-medium">
+              <a
+                href="https://github.com/divyansh9704/ine-product-price-tracker"
+                target="_blank"
+                rel="noreferrer"
+                className="hover:text-blue-600 transition flex items-center space-x-1"
+              >
+                <GitBranch className="w-3.5 h-3.5" />
+                <span>GitHub Repository</span>
+              </a>
+              <a
+                href="https://demo.inelabteamdev.com"
+                target="_blank"
+                rel="noreferrer"
+                className="hover:text-blue-600 transition flex items-center space-x-1"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+                <span>Live Target Store</span>
+              </a>
+              <span className="text-slate-400 text-[11px]">
+                INE Software Engineer Intern Assignment
+              </span>
+            </div>
+          </div>
         </div>
       </footer>
 
