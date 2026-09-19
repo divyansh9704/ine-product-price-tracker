@@ -152,11 +152,22 @@ export async function fetchProductPriceDirect(productId, options = {}) {
 
     if (!sessRes.ok) {
       const sessText = await sessRes.text().catch(() => '');
-      const err = new Error(`Session authorization failed with HTTP ${sessRes.status}: ${sessText}`);
+      let parsedBody = null;
+      try { parsedBody = JSON.parse(sessText); } catch {}
+
+      const err = new Error(`Session handshake rejected by store (HTTP ${sessRes.status}): ${sessText}`);
       err.httpStatus = sessRes.status;
-      // Amendment 4: Invalid/expired session is retryable with fresh handshake
-      if (sessRes.status === 401 || sessRes.status === 403) {
-        err.isSessionError = true;
+
+      if (sessRes.status === 429) {
+        err.errorType = ERROR_TAXONOMY.RATE_LIMITED;
+        const retryHeader = sessRes.headers?.get ? sessRes.headers.get('retry-after') : null;
+        err.retryAfter = retryHeader || (parsedBody?.retryAfter ? String(parsedBody.retryAfter) : '2');
+      } else if (sessRes.status >= 500) {
+        err.errorType = ERROR_TAXONOMY.HTTP_5XX;
+      } else {
+        // Requirement 4: If the store rejects handshake or attestation (e.g. 400, 401, 403),
+        // do not retry endlessly. Classify it as STRUCTURE_CHANGED, log it, create an alert, and store nothing.
+        err.errorType = ERROR_TAXONOMY.STRUCTURE_CHANGED;
       }
       throw err;
     }

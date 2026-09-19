@@ -145,3 +145,32 @@ Decryption yields:
 | **Store Layout Changed** | `validator.js` | Flags `STRUCTURE_CHANGED`, logs failure, generates alert in DB, stores no price data. |
 | **Render 512MB RAM Budget** | Scraper Architecture | Pure Node.js direct protocol uses $< 20\text{ MB}$ RAM, avoiding headless browser crashes. |
 | **Auditing & Traceability** | `scrape-product.js` | Every run writes to `scrape_log` via `try/finally`. Atomic DB transaction guarantees log is recorded. |
+
+---
+
+## 5. Attestation & Fingerprint Breakdown: Computed vs. Hardcoded
+
+To ensure total transparency, the following table details every value submitted in the attestation handshake (`att`), its origin, and its failure profile:
+
+| Attribute | Classification | Source / Value | What Could Break It |
+|---|---|---|---|
+| `wasmOut` | **Computed** | Executed in real-time by compiling the base64 Wasm from `/api/challenge` and invoking `exports.f(seed)`. | Store alters the exported function name, signature, or memory interface. |
+| `nonce` | **Computed** | Computed via SHA-256 brute force against `salt + ":" + nonce` matching `difficulty` prefix zeroes. | Store changes PoW hashing algorithm (e.g. Scrypt, Argon2). |
+| `seed` & `derived` | **Computed** | Derived on the fly using HMAC-like SHA-256 strings combining `salt`, `wasmOut`, and attestation hash. | Store changes the concatenation delimiter, string prefix, or key derivation routine. |
+| `timestamps` (`at`, `hoverAt`, `clickAt`) | **Computed** | Dynamic UTC timestamps calculated using `Date.now()`. Coordinates dynamic dwell times ($\ge 1200\text{ ms}$). | Store requires monotonic clock validations or strict NTP alignment. |
+| `moves` | **Computed** | Generates 12 realistic cursor interpolation points spaced $\ge 65\text{ ms}$ apart with non-linear offsets. | Store adds ML-based bezier curve velocity detection. |
+| `quote.p, s, c` | **Computed (Decrypted)** | Decrypted dynamically using XOR cipher against SHA-256 derived from bearer token. | Store changes encryption cipher (e.g. AES-GCM) or token derivation format. |
+| `canvas` hash | **Hardcoded** | `'b93ad65b96d012a5'` — extracted from Google Chrome 124 canvas 2D rendering buffer hash on Windows. | Store changes the 2D canvas drawing prompt (text, font, bezier curves) used to compute the fingerprint. |
+| `gl` hash | **Hardcoded** | `'bb3723445bc1f3b4'` — extracted from Chrome ANGLE Direct3D/Metal WebGL context hash. | Store changes the WebGL shader program or verifies renderer string against known GPU drivers. |
+| `hc` | **Hardcoded** | `4` — standard hardware concurrency thread count. | Store checks against navigator thread count heuristics or worker thread counts. |
+| `scr` | **Hardcoded** | `[800, 600, 1]` — standard window resolution and devicePixelRatio. | Store enforces common mobile/desktop viewport presets. |
+| `frames` | **Hardcoded** | `[16.6, 16.7, 16.6, 16.7]` — standard 60 Hz display refresh pacing intervals. | Store demands microsecond precision high-resolution performance timers. |
+| `shared-key` | **Hardcoded** | `'ine-mock-store-shared-k3y'` — extracted by static reverse-engineering of `bundle.js`. | Store rotates the shared secret key on backend deployments. |
+
+### How the Scraper Responds to Protocol Changes
+If any hardcoded value stops working or the store changes its challenge protocol:
+1. The store rejects `POST /api/session` with HTTP 400, 401, or 403.
+2. The fetcher detects this rejection and immediately classifies the error as `STRUCTURE_CHANGED` rather than retrying in an endless loop.
+3. The atomic Postgres function logs a failure record with `structure_changed = true` and raises an unacknowledged alert in the `alerts` table.
+4. **Nothing is written to `price_history`**, preserving data integrity until the scraper is updated.
+

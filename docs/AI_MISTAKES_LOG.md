@@ -29,3 +29,13 @@ This log records real defects and mistaken assumptions encountered during develo
 - **Root cause**: Supabase Postgrest client v2 returns a chainable `PostgrestFilterBuilder` on `insert()` that allows selecting inserted fields before awaiting.
 - **How it was fixed**: Updated `fake-db.js` so `insert()` saves the inserted rows in builder state and returns `this` builder, supporting subsequent `.select()`, `.single()`, and promise resolution (`then()`).
 
+---
+
+### Entry 4: Session Handshake HTTP 429 Mistakenly Classified as STRUCTURE_CHANGED
+- **Phase**: Post-Phase 2 Real Store Smoke Test
+- **What was wrong**: In `fetcher.js`, non-200 responses on `POST /api/session` were unconditionally assigned `errorType = STRUCTURE_CHANGED` without checking for HTTP 429 rate limiting.
+- **How it was detected**: During real-store smoke test execution, session attempts returning `HTTP 429 {"error":"rate_limited","scope":"gate","retryAfter":1}` aborted immediately as `STRUCTURE_CHANGED` rather than backing off and retrying.
+- **Root cause**: Over-eager structure failure logic overshadowed standard HTTP status code classification.
+- **How it was fixed**: Updated `fetcher.js` to inspect `sessRes.status === 429`, parse the `retryAfter` field from the response body or headers, classify the error as `RATE_LIMITED`, and allow standard exponential/retry-after backoff before retrying.
+
+
