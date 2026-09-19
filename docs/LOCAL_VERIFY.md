@@ -1,38 +1,40 @@
-# Local Verification Guide
+# Local Verification & Testing Guide
 
-This guide provides the exact commands to test and verify every part of the **Product Price Tracker** locally, including the scraper reliability suite, mock server integration, and API endpoints.
+This guide provides the exact commands to test and verify every part of the **Product Price Tracker** locally, including the scraper reliability test suite, API endpoints, single scrape CLI, headed Playwright observation, and frontend production builds.
 
 ---
 
 ## 1. Prerequisites
+
 - **Node.js**: Version `>= 20.0.0` (`node -v`)
 - **npm**: Version `>= 10.0.0` (`npm -v`)
+- **Google Chrome**: Recommended for headed Playwright observation (`channel: chrome`)
 
 ---
 
-## 2. Running Automated Tests (Offline & Deterministic)
+## 2. Running Automated Tests (100% Offline & Deterministic)
 
-All automated unit and integration tests run against an **in-memory fake database layer** and local mock HTTP server. No external network access or real Supabase credentials are required to verify the complete reliability core.
+All automated unit and integration tests run against an **in-memory fake database layer** and local mock HTTP server. Zero external network access or Supabase credentials are required.
 
 ```bash
 # Navigate to the backend directory
 cd backend
 
-# Run the complete test suite (Unit + Integration: 53 tests, 14 suites)
+# Run the complete test suite (Unit + Integration: 68 tests, 19 suites)
 npm test
 
 # Run unit tests only (Validator, Parser, Error Classifier, Retry Policy)
 npm run test:unit
 
-# Run integration tests only (Fault injection, Concurrency, Atomic RPC, Idempotency)
+# Run integration tests only (Fault injection, Concurrency, Atomic RPC, Idempotency, Express API)
 npm run test:integration
 ```
 
 ### Expected Output Summary:
 ```text
-# tests 53
-# suites 14
-# pass 53
+# tests 68
+# suites 19
+# pass 68
 # fail 0
 # cancelled 0
 # skipped 0
@@ -41,81 +43,127 @@ npm run test:integration
 
 ---
 
-## 3. What the Test Suite Verifies (Core Assignment Invariants)
+## 3. Single Scrape CLI (`scrape:once`)
 
-1. **Assertion (a): Zero `price_history` rows on failure**
-   - Verified against persistent 503 upstream errors, structural corruptions, and diverged volatility jumps.
-2. **Assertion (b): `scrape_log` audit row is always created**
-   - Verified that every attempt records timestamp, status, attempts count, duration, and error type.
-3. **Assertion (c): Correct status semantics**
-   - `success`: first attempt succeeded.
-   - `retried`: succeeded after transient 503, 429 rate limit, or placeholder (`g: 1`) content.
-   - `failed`: exhausted all 4 attempts.
-4. **Assertion (d): Multi-product isolation**
-   - When scraping multiple products with concurrency of 3, a failure on one product never stops or blocks the others.
-5. **Assertion (e): Cron idempotency**
-   - Duplicate cron triggers within 20 minutes of a recent success skip without creating duplicate rows.
-6. **Amendment 2: Atomic transaction writes**
-   - Atomic RPC function `finalize_scrape_success` updates `scrape_log`, inserts `price_history`, and advances `next_scrape_at` in one transaction.
-7. **Amendment 3: Volatility jump confirmation**
-   - Price jump $\ge 40\%$ triggers immediate re-fetch. If confirmed, `flagged = true`. If diverged, fails with `VALIDATION_FAILED` and writes nothing.
+Runs one full scrape using the production direct protocol client and prints the outcome and audit log row:
 
----
-
-## 4. Testing the Production Build Locally
-
-### Backend Production Build
 ```bash
 cd backend
-# Verify production startup
-NODE_ENV=production npm start
+
+# Dry-run scrape of product 125 (no database writes)
+npm run scrape:once -- --product 125 --dry-run
+
+# Scrape with actual database write
+npm run scrape:once -- --product 125
 ```
 
-### Frontend Production Build (Phase 4)
-```bash
-cd frontend
-# Verify production Vite bundle
-npm run build
-npm run preview
+### Expected Output:
+```text
+====================================================
+                 SCRAPE RESULT                      
+====================================================
+Product ID:       ...
+Store Product ID: 125
+Product Name:     Copperpot Solar Charger Mini
+Status:           SUCCESS / RETRIED
+Attempts Used:    1
+Duration:         185 ms
+Price:            ₹1279.00
+Stock Status:     IN STOCK
+----------------------------------------------------
+                 AUDIT SCRAPE LOG ROW               
+----------------------------------------------------
+{
+  "product_id": "...",
+  "status": "success",
+  "attempts": 1,
+  "duration_ms": 185,
+  "http_status": 200,
+  "structure_changed": false
+}
+====================================================
 ```
 
 ---
 
-## 5. Simulating the Cron Endpoint with `curl` (Phase 3+)
+## 4. Headed Observable Mode with Playwright (`scrape:headed`)
 
-Once the Express API is running on `http://localhost:3000`:
+Launches a visible Chromium browser, dismisses cookie overlays, simulates cursor movements with dwell time, intercepts the network handshake, extracts the DOM price, and cross-checks against the decrypted protocol:
 
-### Test 1: Wrong or Missing Cron Secret (Must return HTTP 401)
+```bash
+cd backend
+
+# Run visible headed scrape (350ms slowMo delay)
+npm run scrape:headed -- --product 125 --dry-run
+
+# Run with simulated 503 network error to observe fault handling
+npm run scrape:headed -- --product 125 --dry-run --inject-fault=error
+
+# Run with simulated high network latency
+npm run scrape:headed -- --product 125 --dry-run --inject-fault=slow
+```
+
+---
+
+## 5. Starting the Local Servers
+
+### Step A: Start the Express Backend
+```bash
+cd backend
+npm run dev
+# Listens on http://localhost:3000
+```
+
+### Step B: Start the React Frontend
+```bash
+cd frontend
+npm run dev
+# Opens on http://localhost:5173
+```
+
+---
+
+## 6. Testing Endpoints with `curl`
+
+### 1. Health Check
+```bash
+curl -i http://localhost:3000/health
+```
+**Expected Response**: `HTTP/1.1 200 OK` with JSON `{ "status": "ok", "service": "product-price-tracker-backend", ... }`.
+
+### 2. Store Catalog Search
+```bash
+curl -i "http://localhost:3000/api/store/search?q=125"
+```
+**Expected Response**: `HTTP/1.1 200 OK` with JSON array containing product details.
+
+### 3. Simulating Scheduled Cron: Reject Wrong Secret
 ```bash
 curl -i -X POST http://localhost:3000/api/cron/scrape \
   -H "x-cron-secret: wrong-secret"
 ```
-**Expected Response**:
-```http
-HTTP/1.1 401 Unauthorized
-Content-Type: application/json
+**Expected Response**: `HTTP/1.1 401 Unauthorized` with JSON `{ "error": "Unauthorized: Invalid or missing x-cron-secret header" }`.
 
-{"error":"unauthorized","message":"Invalid or missing cron secret"}
-```
-
-### Test 2: Correct Cron Secret (Must return HTTP 202 Immediately)
+### 4. Simulating Scheduled Cron: Accept Valid Secret
 ```bash
 curl -i -X POST http://localhost:3000/api/cron/scrape \
   -H "x-cron-secret: local-dev-cron-secret-change-in-production"
 ```
-**Expected Response**:
-```http
-HTTP/1.1 202 Accepted
-Content-Type: application/json
+**Expected Response**: `HTTP/1.1 202 Accepted` with JSON `{ "message": "Scrape run queued successfully", ... }`.
 
-{"status":"accepted","message":"Scheduled scrape run initiated"}
-```
+---
 
-### Test 3: Duplicate Cron Call Within Idempotency Window
-Triggering the cron endpoint immediately a second time will execute the idempotency guard:
+## 7. Verifying Production Builds
+
+### Backend Production Startup
 ```bash
-curl -i -X POST http://localhost:3000/api/cron/scrape \
-  -H "x-cron-secret: local-dev-cron-secret-change-in-production"
+cd backend
+NODE_ENV=production npm start
 ```
-**Expected Result**:
-Products successfully scraped in the first call have their `next_scrape_at` advanced by 120 minutes and are skipped on the second run, creating **zero duplicate rows** in `price_history`.
+
+### Frontend Production Build
+```bash
+cd frontend
+npm run build
+npm run preview
+```
