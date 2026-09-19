@@ -8,7 +8,8 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS%203.4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![Render Free Tier](https://img.shields.io/badge/Deploy-Render%20Web%20Service-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://render.com/)
 [![Vercel](https://img.shields.io/badge/Deploy-Vercel%20SPA-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com/)
-[![Tests](https://img.shields.io/badge/Tests-72%20Passing%20(20%20Suites)-success?style=for-the-badge&logo=github-actions&logoColor=white)](backend/src/__tests__/)
+[![CI Pipeline](https://img.shields.io/github/actions/workflow/status/divyansh9704/ine-product-price-tracker/ci.yml?branch=master&style=for-the-badge&logo=github-actions&logoColor=white&label=CI%20Pipeline)](https://github.com/divyansh9704/ine-product-price-tracker/actions)
+[![Tests](https://img.shields.io/badge/Tests-72%20Passing%20(20%20Suites)-success?style=for-the-badge&logo=jest&logoColor=white)](https://github.com/divyansh9704/ine-product-price-tracker)
 [![Invariants](https://img.shields.io/badge/DB%20Invariants-Atomic%20RPC%20Enforced-blueviolet?style=for-the-badge)](supabase/schema.sql)
 
 <p align="center">
@@ -19,6 +20,7 @@
 <p align="center">
   <a href="https://ine-product-price-tracker.vercel.app"><b>🚀 Live Web App (Vercel)</b></a> &nbsp;•&nbsp;
   <a href="https://ine-product-price-tracker-attc.onrender.com/health"><b>⚡ Live Backend API (Render)</b></a> &nbsp;•&nbsp;
+  <a href="https://www.loom.com/share/876e8cf34975420ba5901f7025209fe8"><b>🎬 Video Demo (Loom)</b></a> &nbsp;•&nbsp;
   <a href="#architecture-overview">Architecture</a> &nbsp;•&nbsp;
   <a href="#-quickstart-local-development">Quickstart</a>
 </p>
