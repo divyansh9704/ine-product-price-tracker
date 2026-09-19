@@ -46,7 +46,12 @@ export function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
+    <div className="min-h-screen bg-slate-50 flex flex-col font-sans relative overflow-x-hidden selection:bg-blue-600 selection:text-white">
+      {/* Subtle ambient decorative gradient orbs */}
+      <div className="fixed top-0 -left-40 w-96 h-96 bg-blue-200/30 rounded-full blur-3xl pointer-events-none -z-10" />
+      <div className="fixed top-20 -right-40 w-96 h-96 bg-indigo-200/25 rounded-full blur-3xl pointer-events-none -z-10" />
+      <div className="fixed bottom-0 left-1/3 w-96 h-96 bg-emerald-100/30 rounded-full blur-3xl pointer-events-none -z-10" />
+
       <Navbar
         onOpenTrackModal={() => setIsTrackModalOpen(true)}
         alertsCount={alerts.length}

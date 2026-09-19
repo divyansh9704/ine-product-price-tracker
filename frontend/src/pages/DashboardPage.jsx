@@ -90,11 +90,13 @@ export function DashboardPage({ onOpenTrackModal }) {
   const successRate = totalTracked > 0 ? Math.round((successfulScrapes / totalTracked) * 100) : 100;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-fade-in">
       {/* Top Banner / Hero */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Tracked Products Dashboard</h1>
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight gradient-heading">
+            Tracked Products Dashboard
+          </h1>
           <p className="text-sm text-slate-500 mt-1">
             Unattended 2-hour automated scraping with zero wrong prices stored and atomic guarantees.
           </p>
@@ -104,7 +106,7 @@ export function DashboardPage({ onOpenTrackModal }) {
           <button
             onClick={loadProducts}
             disabled={loading}
-            className="inline-flex items-center px-3 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg shadow-sm transition disabled:opacity-50"
+            className="inline-flex items-center px-3.5 py-2 text-xs font-semibold text-slate-700 bg-white/90 border border-slate-300/80 hover:bg-slate-50 rounded-xl shadow-xs transition duration-150 disabled:opacity-50"
             title="Refresh product list"
           >
             <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${loading ? 'animate-spin text-blue-600' : ''}`} />
@@ -112,7 +114,7 @@ export function DashboardPage({ onOpenTrackModal }) {
           </button>
           <button
             onClick={onOpenTrackModal}
-            className="inline-flex items-center px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-lg shadow-sm transition"
+            className="inline-flex items-center px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-xl shadow-sm hover:shadow-md hover:shadow-blue-500/25 transition duration-150"
           >
             <Plus className="w-4 h-4 mr-1.5" />
             Track New Product
@@ -122,7 +124,7 @@ export function DashboardPage({ onOpenTrackModal }) {
 
       {/* KPI Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div className="glass-panel interactive-card p-5 rounded-2xl shadow-xs flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Active Products</p>
             <p className="text-2xl font-bold text-slate-900 mt-1">{totalTracked}</p>
@@ -133,7 +135,7 @@ export function DashboardPage({ onOpenTrackModal }) {
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div className="glass-panel interactive-card p-5 rounded-2xl shadow-xs flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Stock Availability</p>
             <p className="text-2xl font-bold text-slate-900 mt-1">
@@ -148,7 +150,7 @@ export function DashboardPage({ onOpenTrackModal }) {
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div className="glass-panel interactive-card p-5 rounded-2xl shadow-xs flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Scrape Health Rate</p>
             <p className="text-2xl font-bold text-slate-900 mt-1">{successRate}%</p>
@@ -159,7 +161,7 @@ export function DashboardPage({ onOpenTrackModal }) {
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div className="glass-panel interactive-card p-5 rounded-2xl shadow-xs flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Next Scheduled Run</p>
             <p className="text-2xl font-bold text-slate-900 mt-1">Due</p>
@@ -172,7 +174,7 @@ export function DashboardPage({ onOpenTrackModal }) {
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="glass-panel p-4 rounded-2xl shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="relative w-full sm:w-80">
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
