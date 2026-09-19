@@ -203,6 +203,6 @@ Therefore, for our backend API (`GET /api/store/search?q=`):
 2. **Immunity to DOM Traps & Scrambling**:
    The direct protocol operates directly on the un-scrambled, exact integer values (`p`, `s`, `c`, `t`, `g`). It completely bypasses zero-width spaces, randomized class names, hidden decoy elements, and cookie overlays.
 3. **Latency & Reliability**:
-   The direct HTTP flow executes in $\approx 150\text{ ms}$ (vs. 6–10 seconds in a full browser with artificial dwell and move simulation).
+   The direct HTTP flow executes in $\approx 146\text{ ms} - 2,400\text{ ms}$ (vs. 6–10 seconds in a full browser with artificial dwell and move simulation).
 4. **Observable Headed Mode**:
    Playwright will be fully implemented and supported via `npm run scrape:headed` for the required live visual demonstration, fault injection, and screen recording script. It cross-checks the browser-rendered DOM price against the direct protocol result.

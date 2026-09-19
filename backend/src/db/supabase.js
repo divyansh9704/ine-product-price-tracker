@@ -7,6 +7,20 @@ import { fakeDb } from './fake-db.js';
 
 let activeClient = null;
 
+export function createSupabaseClient(cfg = config) {
+  const url = cfg.supabase?.url || cfg.SUPABASE_URL || process.env.SUPABASE_URL;
+  const key = cfg.supabase?.serviceRoleKey || cfg.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) {
+    throw new Error('SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required to create a Supabase client');
+  }
+  return createClient(url, key, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false
+    }
+  });
+}
+
 export function getDb() {
   if (activeClient) {
     return activeClient;
@@ -18,18 +32,7 @@ export function getDb() {
     return activeClient;
   }
 
-  // Initialize real Supabase client with service-role key (bypasses RLS for backend operations)
-  activeClient = createClient(
-    config.supabase.url,
-    config.supabase.serviceRoleKey,
-    {
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false
-      }
-    }
-  );
-
+  activeClient = createSupabaseClient(config);
   return activeClient;
 }
 

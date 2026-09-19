@@ -1,6 +1,7 @@
 // backend/src/config.js
 // Central environment variable validation and configuration loader using Zod.
 
+import 'dotenv/config';
 import { z } from 'zod';
 
 const envSchema = z.object({

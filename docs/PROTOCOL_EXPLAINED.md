@@ -143,7 +143,7 @@ Decryption yields:
 | **Placeholder / Stale (`g: 1`)** | `validator.js` | Flags as `PLACEHOLDER_CONTENT`, triggers retry. Never stored as valid price. |
 | **$\ge 40\%$ Volatility Jump** | `validator.js` | Executes immediate re-fetch. If agreement: marks `flagged = true`. If divergence: fails with `VALIDATION_FAILED`. |
 | **Store Layout Changed** | `validator.js` | Flags `STRUCTURE_CHANGED`, logs failure, generates alert in DB, stores no price data. |
-| **Render 512MB RAM Budget** | Scraper Architecture | Pure Node.js direct protocol uses $< 20\text{ MB}$ RAM, avoiding headless browser crashes. |
+| **Render 512MB RAM Budget** | Scraper Architecture | Pure Node.js direct protocol uses measured 38–70 MB peak RSS, avoiding headless browser crashes. |
 | **Auditing & Traceability** | `scrape-product.js` | Every run writes to `scrape_log` via `try/finally`. Atomic DB transaction guarantees log is recorded. |
 
 ---

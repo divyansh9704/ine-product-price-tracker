@@ -20,7 +20,7 @@ graph TD
 
     subgraph "Production Backend (Render Free Tier - Node 20)"
         Express["Express.js Server (Port 3000)"]
-        ScraperCore["Direct Protocol Engine (< 20MB RAM)"]
+        ScraperCore["Direct Protocol Engine (Measured 38-70 MB RSS)"]
         WasmRunner["In-Memory Wasm & PoW Solver"]
         XorDecrypter["XOR Stream Decrypter"]
         JumpValidator["40% Volatility Validator"]
@@ -82,8 +82,8 @@ graph TD
    - All 68 automated tests run 100% offline using an injected `FakeDatabase` layer, requiring zero external network or Supabase credentials.
 6. **Dynamic Currency Normalization (Amendment 6)**:
    - Currency is parsed dynamically from decrypted quotes (`quote.c`, e.g. `"INR"`), never hardcoded.
-7. **Production Memory Safety (< 20 MB RSS)**:
-   - Pure Node.js Direct Protocol Client bypasses headless browsers, consuming $< 20\text{ MB}$ RAM to ensure zero Out-Of-Memory (OOM) fatal kills on Render's 512 MB free tier.
+7. **Production Memory Safety (Measured 38–70 MB RSS)**:
+   - Pure Node.js Direct Protocol Client runs without headless browsers. Measured baseline RSS is ~24 MB, peaking at ~38–70 MB during Wasm compilation and network fetch (measured via `process.memoryUsage().rss`). This provides > 440 MB headroom on Render's 512 MB free tier limit. Measured scrape latency ranges from 146 ms (warm) to 2,400 ms under upstream throttling.
 
 ---
 

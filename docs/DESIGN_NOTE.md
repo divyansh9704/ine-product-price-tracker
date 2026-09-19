@@ -9,7 +9,7 @@ Building a reliable, unattended price tracker for `https://demo.inelabteamdev.co
 4. **Cloud Infrastructure Limits**: Deployment on Render's free tier imposes a strict 512 MB RAM limit, where headless Chromium instances routinely trigger Out-Of-Memory (OOM) fatal kills.
 
 Our architecture solves these challenges through a **dual-engine design**:
-- **Primary Production Engine**: A pure Node.js Direct Protocol Client that solves the challenge cryptographically, consumes $< 20\text{ MB}$ RAM, and runs in ~150 ms.
+- **Primary Production Engine**: A pure Node.js Direct Protocol Client that solves the challenge cryptographically. Measured memory usage is ~24 MB baseline RSS, peaking at ~38–70 MB during Wasm compilation and network fetching (measured via `process.memoryUsage().rss`), running in ~146 ms to 2,400 ms.
 - **Observable Verification Engine**: A headed Playwright runner (`npm run scrape:headed`) used exclusively in development for visual demonstrations, DOM cross-checking, and video audits.
 
 ---
@@ -18,9 +18,9 @@ Our architecture solves these challenges through a **dual-engine design**:
 
 | Dimension | Headed / Headless Browser (Playwright/Puppeteer) | Direct Protocol Engine (`backend/src/scraper/fetcher.js`) |
 |---|---|---|
-| **Memory Footprint** | 250 MB – 450 MB per tab | **< 20 MB total process RSS** |
-| **Execution Latency** | 3,500 ms – 7,000 ms (DOM hydration, interaction timers) | **100 ms – 350 ms** |
-| **Render 512MB RAM Safety** | High risk of OOM container termination on Render Free Tier | **100% immune to OOM crashes** |
+| **Memory Footprint** | 250 MB – 450 MB per tab (Chromium V8 + GPU process) | **Measured 24 MB baseline, 38–70 MB peak RSS** |
+| **Execution Latency** | 3,500 ms – 7,000 ms (DOM hydration, interaction timers) | **Measured 146 ms – 2,400 ms** (store dependent) |
+| **Render 512MB RAM Safety** | High risk of fatal OOM container termination | **Safe: leaves > 440 MB free memory headroom** |
 | **DOM Decoy Resistance** | Must bypass zero-width spaces (`\u200B`), fake tags, overlays | **Immune: bypasses DOM entirely** |
 | **Maintenance Profile** | Breaks if CSS classes, button labels, or DOM layout change | Breaks only if the cryptographic API handshake contract changes |
 
@@ -28,26 +28,40 @@ Our architecture solves these challenges through a **dual-engine design**:
 
 ## 3. Known Limitation: Fingerprint & Protocol Dependency
 
-### The Trade-off Plainly Stated
-The direct protocol scraper achieves exceptional reliability, speed, and minimal memory usage because it speaks the store's native client protocol. However, **this architecture introduces an inherent coupling to the stability of the store's challenge handshake and client attestation format**.
+### Why the Direct-Protocol Path Was Chosen
+We selected the direct protocol engine over running headless Chromium for three technical reasons:
+1. **Render Free Tier 512 MB RAM Ceiling**: A headless Chromium process requires 250–450 MB of memory. In a 512 MB container, running a headless browser alongside Node.js routinely triggers Linux OOM killer kills (`exit code 137`). Our direct client consumes only 38–70 MB peak RSS.
+2. **Speed and Efficiency**: Rather than loading megabytes of stylesheets, font files, and rendering cycles, direct protocol requests complete in 146 ms to 2,400 ms.
+3. **Immunity to DOM Traps**: The store deliberately renders fake decoy prices (`[data-price="true"]`), injects zero-width non-breaking spaces (`\u200B`), and scrambles CSS classes via `/api/layout`. Direct protocol retrieves the authoritatively decrypted quote directly from the API.
 
-Specifically, the scraper relies on:
-1. **Attestation Hashes**: Hardcoded Canvas 2D (`'b93ad65b96d012a5'`) and WebGL (`'bb3723445bc1f3b4'`) hashes derived from a real Windows Chrome 124 browser instance.
-2. **Shared Secret Key**: The static string `'ine-mock-store-shared-k3y'` extracted from the store's client bundle.
-3. **Protocol Flow**: The sequence of `GET /api/challenge` $\to$ solve Wasm/PoW $\to$ `POST /api/session` $\to$ `GET /api/products/:id/price`.
+### Breakdown: Copied vs. Synthesized Values
+To ensure total transparency, the following table details which values are copied/extracted vs synthesized:
 
-### Failure Modes
-If the upstream store alters its anti-scraping layer (for example, by changing the canvas test prompt, rotating the shared secret key, switching to an AES-GCM cipher, or enforcing server-side TLS JA4 fingerprinting):
-- The handshake endpoint `POST /api/session` will reject the attestation with `HTTP 401 Unauthorized` or `HTTP 403 Forbidden`.
-- **Our Guardrail**: The scraper will **never** retry endlessly in a tight loop. Instead, `fetcher.js` classifies the rejection as `STRUCTURE_CHANGED`.
-- The atomic database procedure marks the scrape log as failed, raises an unacknowledged alert in the `alerts` table, and **stores zero rows in `price_history`**.
-- This guarantees data integrity: the system will never corrupt historical data with bad prices.
+| Telemetry / Handshake Parameter | Source / Technique | Classification |
+|---|---|---|
+| **Shared Secret Key** | Extracted from deobfuscated store client `bundle.js` (`'ine-mock-store-shared-k3y'`). | **Copied / Hardcoded** |
+| **Canvas 2D Hash** | Extracted from real Google Chrome 124 browser rendering on Windows (`'b93ad65b96d012a5'`). | **Copied / Hardcoded** |
+| **WebGL Driver Hash** | Extracted from real Chrome ANGLE Direct3D/Metal WebGL context (`'bb3723445bc1f3b4'`). | **Copied / Hardcoded** |
+| **Hardware Concurrency** | Standard quad-core CPU threads (`4`). | **Synthesized** |
+| **Screen Dimensions** | Viewport preset (`[800, 600, 1]`). | **Synthesized** |
+| **Display Frame Intervals** | Standard 60 Hz display refresh pacing (`[16.6, 16.7, 16.6, 16.7]`). | **Synthesized** |
+| **Cursor Trajectories (`moves`)** | 12 non-linear coordinate points with $\ge 65\text{ ms}$ intervals and 1200ms dwell time. | **Synthesized dynamically** |
+| **Timestamps (`at`, `hoverAt`, `clickAt`)** | Dynamic UTC timestamps generated via `Date.now()`. | **Synthesized dynamically** |
+| **WebAssembly Output (`wasmOut`)** | Base64 Wasm compiled in-memory; executed using V8 `exports.f(seed)`. | **Computed dynamically** |
+| **Proof-of-Work Nonce (`nonce`)** | Incrementing counter until `sha256(salt + ":" + nonce)` satisfies `difficulty`. | **Computed dynamically** |
+| **Session Key & Decryption** | SHA-256 HMAC derived from salt, Wasm output, and attestation hash. | **Computed dynamically** |
 
-### The Operational Fallback
-If the store alters its challenge protocol:
-1. **Immediate Detection**: The dashboard displays a red "Protocol Alteration Alert" indicating that the store handshake format has changed.
-2. **Developer Fallback**: The engineer runs `npm run scrape:headed` locally to inspect the new DOM and bundle behavior.
-3. **Protocol Extraction**: Running the probe script extracts the updated canvas prompt or cipher key, updating `constants.js` and restoring automated scraping in minutes.
+### Risks & Failure Modes
+If the upstream store alters its anti-scraping layer:
+- **Shared Key Rotation**: If the store updates `'ine-mock-store-shared-k3y'`, key derivation fails.
+- **Canvas Prompt Alteration**: If the store updates its 2D canvas drawing instructions, the expected hash changes.
+- **New Fingerprinting Dimensions**: If the store requires AudioContext, WebGPU, or client TLS JA4 fingerprints.
+- **How the System Responds**:
+  - The store responds to `POST /api/session` with `HTTP 401 Unauthorized` or `403 Forbidden`.
+  - The engine immediately halts retries and classifies the error as `STRUCTURE_CHANGED`.
+  - An unresolved alert is logged in `alerts`.
+  - **Zero unverified rows are written to `price_history`**, preserving database integrity.
+  - The engineer uses `npm run scrape:headed` locally to inspect the new protocol and extract updated parameters.
 
 ---
 
