@@ -16,7 +16,12 @@
   Features cryptographic proof-of-work negotiation, in-memory WebAssembly execution, zero-corrupted-data guarantees, atomic PostgreSQL RPC persistence, and an interactive analytics dashboard.
 </p>
 
-[Architecture](#architecture-overview) • [Core Invariants](#key-reliability-invariants--amendments) • [Live DB Verification](#real-supabase-smoke-verification-npm-run-smokedb) • [Local Quickstart](#quickstart-local-development) • [Deployment Guide](#production-deployment-blueprint)
+<p align="center">
+  <a href="https://ine-product-price-tracker.vercel.app"><b>🚀 Live Web App (Vercel)</b></a> &nbsp;•&nbsp;
+  <a href="https://ine-product-price-tracker-attc.onrender.com/health"><b>⚡ Live Backend API (Render)</b></a> &nbsp;•&nbsp;
+  <a href="#architecture-overview">Architecture</a> &nbsp;•&nbsp;
+  <a href="#-quickstart-local-development">Quickstart</a>
+</p>
 
 </div>
 
